@@ -7,10 +7,102 @@ description: Énoncé du travail pratique 1
 # Travail pratique 1
 
 - **Pondération** : 10%
-- **Énoncé semaine** : 4
+- **Distribution de l'énoncé** : 18 février 2026
+- **Date de remise** : 4 mars 2026 à 23h59
+
+## Objectif
+
+Implanter l'algorithme Shunting-yard pour convertir et évaluer des expressions
+infixées en notation postfixée, puis exposer ces fonctions dans une petite
+interface Tkinter, le tout versionné avec Git et hébergé sur GitHub.
+
+## Algorithme Shunting-yard
+
+Une partie de ce travail consiste à comprendre et implémenter l'algorithme
+Shunting-yard. Vous êtes autonome pour trouver des ressources en ligne et
+l'utilisation de l'intelligence artificielle est permise pour vous aider à
+comprendre cet algorithme. Cependant, vous devez implémenter l'algorithme
+vous-même sans copier du code existant.
+
+Votre algorithme doit gérer les opérateurs suivants : `+`, `-`, `*`, `/` et les
+parenthèses `(` et `)`. Vous devez également gérer les nombres à virgule
+flottante (par exemple `3.14` ou `-3.14`). *Vous n'avez pas à gérer les fonctions
+mathématiques ou les variables.*
+
+Votre code doit comporter les fonctions suivantes dans le fichier `shunting_yard.py` :
+
+- `tokenize(expression: str) -> list[str]`: Convertit une expression
+  mathématique en une liste de tokens. Un token est une unité de l'expression,
+  comme un nombre, un opérateur ou une parenthèse. Par exemple, l'expression `3 + 4 * 2 / ( 1 - 5 )` doit être convertie en `['3', '+', '4', '*', '2', '/',
+  '(', '1', '-', '5', ')']`.
+
+- `infix_to_postfix(tokens: list[str]) -> list[str]`: Implémente l'algorithme
+  Shunting-yard pour convertir une liste de tokens en notation postfixée. Par
+    exemple, la liste de tokens `['3', '+', '4', '*', '2', '/', '(', '1', '-', '5', ')']` doit être convertie en `['3', '4', '2', '*', '1', '5', '-', '/', '+']`.
+
+- `evaluate_postfix(tokens: list[str]) -> float`: Évalue une expression en
+  notation postfixée et retourne le résultat. Par exemple, la liste de tokens
+  `['3', '4', '2', '*', '1', '5', '-', '/', '+']` doit être évaluée à `1`.
+
+## Interface graphique
+
+Vous devez également créer une interface graphique simple avec Tkinter pour
+permettre à l'utilisateur de saisir une expression mathématique en notation
+infixée, de la convertir en notation postfixée et d'afficher le résultat de
+l'évaluation. L'interface doit comporter les éléments suivants :
+
+- Un champ de saisie pour l'expression infixée.
+- Un bouton pour convertir l'expression en notation postfixée.
+- Un champ de texte pour afficher l'expression en notation postfixée.
+- Un champ de texte pour afficher le résultat de l'évaluation.
+- Un champ de texte pour afficher les messages d'erreur le cas échéant.
+
+Le code de l'interface graphique doit être dans un fichier séparé nommé
+`gui.py` et doit importer les fonctions du fichier `shunting_yard.py` pour
+effectuer les conversions et les évaluations. **Lorsqu'on exécute le fichier
+`gui.py` avec la commande  `python gui.py`, il doit lancer l'interface graphique.**
+
+## Gestion des erreurs
+
+Votre code doit également gérer les erreurs de manière appropriée. Par exemple,
+si l'utilisateur saisit une expression invalide, votre code
+doit lever une exception avec un message d'erreur clair. Votre code doit gérer
+au moins les erreurs suivantes :
+
+- Expression invalide : `3 + * 4`
+- Division par zéro : `4 / 0`
+- Parenthèses non appariées : `( 3 + 4`
+- Opérateur inconnu : `3 $ 4`
+- Nombre mal formé : `3.14.15` ou `3..14`
+
+Votre programme ne doit pas planter en cas d'erreur, mais doit plutôt afficher
+un message d'erreur clair à l'utilisateur dans le champ de texte prévu à cet
+effet dans l'interface graphique.
+
+## Git et GitHub
+
+Vous devez utiliser Git pour gérer votre projet et GitHub pour héberger votre
+code. Vous devez faire au moins 5 commits significatifs tout au long du
+développement de votre projet. Assurez-vous que vos messages de commit sont
+clairs et descriptifs.
+
+Pour ce TP, vous n'avez pas besoin de créer une branche séparée pour le
+développement, mais vous pouvez le faire si vous le souhaitez. La correction se
+fera sur la branche principale (`main`).
+
+Vous pouvez créer un dépôt public ou privé sur GitHub. Si vous choisissez de
+créer un dépôt privé, assurez-vous de partager l'accès avec le professeur
+(identifiant GitHub : `archambaultv-prof`).
+
+
+## Remise
+
+Vous remettez sur Omnivox un fichier texte nommé `tp1.txt` qui contient le lien
+vers votre dépôt GitHub.
 
 :::warning
 
-Plus d'informations sera disponible au cours de la session.
+Attention, vous devez respecter les noms des fichiers et des fonctions et les signatures
+indiquées. Toute déviation de ces spécifications peut entraîner une pénalité.
 
 :::
