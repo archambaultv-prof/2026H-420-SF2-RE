@@ -7,10 +7,112 @@ description: Énoncé du travail pratique 2
 # Travail pratique 2
 
 - **Pondération** : 15%
-- **Énoncé semaine** : 6
+- **Distribution de l'énoncé** : 23 mars 2026
+- **Date de remise** : 7 avril 2026 à 23h59
 
-:::warning
+## Objectif
 
-Plus d'informations sera disponible au cours de la session.
+Mettre en pratique les concepts de la programmation orientée objet en Python,
+notamment l'héritage, le polymorphisme et les interfaces.
 
-:::
+## Énoncé
+
+Alors votre prof de mathématiques vous a fait dériver à la main plusieurs
+fonctions... eh bien, nous allons nous venger et automatiser ce processus de
+dérivation symbolique en Python ! En effet, vous allez implémenter un mini
+calculateur de dérivation symbolique capable de manipuler des expressions
+mathématiques, de les évaluer et de calculer leur dérivée de manière
+symbolique. Et voilà, plus jamais de calcul à la main, on laisse Python faire
+le travail !
+
+
+### Structure du projet
+
+Le code de départ est disponible dans [ce dépôt GitHub](https://github.com/archambaultv-prof/2026H-420-SF2-RE-TP2).
+
+Le squelette du projet est déjà fourni. Certaines classes sont à implémenter.
+- `expression.py`: classe abstraite `Expression` (déjà complétée).
+- `polynome.py`: classe `Polynome` à implémenter.
+- `operations.py`: classes `Addition` et `Multiplication` à implémenter.
+- `fonctions.py`: classes `Sin`, `Cos` et `Exp` à implémenter.
+- `main.py`: programme de démonstration (déjà fourni).
+
+### Travail à faire
+
+Remplacer les `pass` par une implémentation complète dans les fichiers suivants:
+
+1. `polynome.py`
+2. `operations.py`
+3. `fonctions.py`
+
+Chaque classe concrète doit respecter l'interface de `Expression`:
+
+- `evaluer(self, x: float) -> float`
+- `deriver(self) -> Expression`
+- `__str__(self) -> str`
+
+Je vous conseille de compléter les fichiers dans l'ordre indiqué, car les
+classes d'opérations et de fonctions dépendront de la classe `Polynome`.
+
+### Consignes pour chaque classe
+
+### Polynôme
+
+Dans ce travail, un polynôme est défini par une liste de coefficients, où le
+coefficient d'indice `i` correspond au terme de degré `i`. Par exemple, le
+polynôme $3x^2 + 2x + 1$ serait représenté par la liste `[1, 2, 3]`. Sa dérivée
+serait $6x + 2$, représentée par `[2, 6]`. La liste de coefficients est passée
+au constructeur de la classe `Polynome`.
+
+Il est donc possible, d'un point de vue informatique, de représenter un
+polynôme par une simple liste de coefficients et d'implémenter les méthodes
+`evaluer` et `deriver` en utilisant des boucles et des opérations sur les listes.
+
+### Addition
+
+La classe `Addition` représente la somme de deux expressions. Sa dérivée est la
+somme des dérivées des deux expressions. Son constructeur prend deux objets
+`Expression` en arguments.
+
+### Multiplication
+
+La classe `Multiplication` représente le produit de deux expressions. Sa dérivée
+est donnée par la règle du produit. Son constructeur prend deux objets
+`Expression` en arguments.
+
+### Fonctions composées
+
+Les fonctions `Sin`, `Cos` et `Exp` seront conçues pour représenter des
+fonctions composées, c'est-à-dire des fonctions qui prennent une autre
+expression comme argument à leur constructeur et symbolisent l'application de
+`Sin`, `Cos` ou `Exp` à cette expression.
+
+Par exemple, `Sin(Polynome([0, 1]))` représente la fonction $\sin(x)$, car le
+polynôme $0 + 1x$ est simplement $x$. Autre exemple,
+`Exp(Polynome([1, 1]))` représente la fonction $e^{1 + x}$, car
+`Polynome([1, 1])` correspond à l'expression $1 + x$
+
+Leur dérivée est donnée par la règle de la chaîne.
+
+
+## Contraintes de conception
+
+1. Utiliser la composition d'objets `Expression` (pas de dérivée numérique).
+2. Retourner une représentation symbolique cohérente dans `__str__`.
+3. Retourner des objets `Expression` dans `deriver`.
+4. Écrire un code clair et conforme aux conventions de style Python (PEP 8).
+
+## Validation attendue
+
+Le fichier `main.py` doit s'exécuter sans erreur et :
+
+1. afficher les expressions et leurs dérivées;
+2. évaluer les fonctions et dérivées en quelques points;
+3. tracer une courbe de comparaison entre une expression et sa dérivée.
+
+Vous n'avez pas à modifier `main.py`, mais vous pouvez le faire pour vos tests personnels.
+
+## Livrable
+
+Vous remettez sur Omnivox un fichier `.txt` contenant un lien vers votre dépôt
+GitHub contenant votre code source.
