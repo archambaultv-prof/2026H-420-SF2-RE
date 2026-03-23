@@ -74,11 +74,19 @@ La classe `Addition` représente la somme de deux expressions. Sa dérivée est 
 somme des dérivées des deux expressions. Son constructeur prend deux objets
 `Expression` en arguments.
 
+$$
+\frac{d}{dx}(f(x) + g(x)) = \frac{d}{dx}(f(x)) + \frac{d}{dx}(g(x))
+$$
+
 ### Multiplication
 
 La classe `Multiplication` représente le produit de deux expressions. Sa dérivée
 est donnée par la règle du produit. Son constructeur prend deux objets
 `Expression` en arguments.
+
+$$
+\frac{d}{dx}(f(x) \cdot g(x)) = \frac{d}{dx}(f(x)) \cdot g(x) + f(x) \cdot \frac{d}{dx}(g(x))
+$$
 
 ### Fonctions composées
 
@@ -94,6 +102,24 @@ polynôme $0 + 1x$ est simplement $x$. Autre exemple,
 
 Leur dérivée est donnée par la règle de la chaîne.
 
+$$
+\frac{d}{dx}(\sin(f(x))) = \cos(f(x)) \cdot \frac{d}{dx}(f(x))
+$$
+$$
+\frac{d}{dx}(\cos(f(x))) = -\sin(f(x)) \cdot \frac{d}{dx}(f(x))
+$$
+$$
+\frac{d}{dx}(e^{f(x)}) = e^{f(x)} \cdot \frac{d}{dx}(f(x))
+$$
+
+Donc, pour reprendre l'exemple de $\sin(x)$, sa dérivée serait
+$$
+\frac{d}{dx}(\sin(x)) = \cos(x) \cdot \frac{d}{dx}(x) = \cos(x) \cdot 1
+$$
+
+On voit ici que le travail demandé ne nécessite pas la simplification
+algébrique des expressions. Il n'est pas nécessaire de réduire les expressions à une forme plus simple, 
+comme transformer `cos(x) * 1` en `cos(x)`.
 
 ## Contraintes de conception
 
