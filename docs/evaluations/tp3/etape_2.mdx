@@ -1,0 +1,157 @@
+---
+sidebar_position: 3
+sidebar_label: Étape 2
+description: Étape 2 — Bandes de rebond et friction
+---
+
+# Étape 2
+
+## Objectif
+
+Ajouter des bandes de rebond sur les quatre côtés de la surface de jeu et un
+coefficient de friction qui ralentit progressivement la balle. La simulation
+se termine maintenant lorsque la balle s'immobilise, et non plus lorsqu'elle
+atteint un bord.
+
+## Friction
+
+Le coefficient de friction $\mu$ (un nombre entre $0$ et $1$) représente la
+résistance du tapis sur la balle. À chaque pas de temps, la vitesse est
+atténuée proportionnellement :
+
+$$
+\vec{v}_{n+1} = \vec{v}_n \cdot (1 - \mu \cdot \Delta t)
+$$
+
+Ainsi, plus $\mu$ est grand, plus la balle décélère rapidement. Avec $\mu = 0$,
+on retrouve le comportement de l'étape 1 (vitesse constante).
+
+L'ordre des opérations à chaque pas de temps est donc :
+
+1. Appliquer la friction : $\vec{v} \leftarrow \vec{v} \cdot (1 - \mu \cdot \Delta t)$
+2. Détecter et traiter les rebonds éventuels (voir section suivante).
+3. Mettre à jour la position : $\vec{p} \leftarrow \vec{p} + \vec{v} \cdot \Delta t$
+
+## Condition d'arrêt
+
+La simulation se poursuit tant que la balle est en mouvement. On considère
+qu'elle est immobile dès que sa vitesse passe sous un seuil $\epsilon$ :
+
+$$
+\|\vec{v}\| \leq \epsilon
+$$
+
+En NumPy :
+
+```python
+np.linalg.norm(v) <= epsilon
+```
+
+:::tip
+
+Choisissez un seuil $\epsilon$ raisonnable. Un seuil trop petit allonge
+inutilement la simulation ; un seuil trop grand immobilise la balle trop tôt.
+
+:::
+
+## Rebond sur les bandes
+
+Lorsque la balle atteint un bord, elle rebondit. La bande agit comme un miroir
+par rapport à sa surface : la composante de la vitesse **perpendiculaire** au
+bord est inversée, tandis que la composante **parallèle** reste inchangée.
+
+### Formule vectorielle de réflexion
+
+Cette opération se décrit élégamment avec la formule de réflexion vectorielle.
+Soit $\hat{n}$ le vecteur normal unitaire pointant vers l'intérieur de la
+surface de jeu.
+
+L'idée est de **décomposer** $\vec{v}$ en deux composantes :
+
+- La composante **normale** (perpendiculaire au bord) :
+  $\vec{v}_n = (\vec{v} \cdot \hat{n})\,\hat{n}$
+- La composante **tangentielle** (parallèle au bord) :
+  $\vec{v}_t = \vec{v} - \vec{v}_n$
+
+Lors du rebond, seule la composante normale est inversée; la composante
+tangentielle reste inchangée :
+
+$$
+\vec{v}' = \vec{v}_t - \vec{v}_n = (\vec{v} - \vec{v}_n) - \vec{v}_n = \vec{v} - 2\,\vec{v}_n
+$$
+
+Ce qui donne la formule compacte :
+
+$$
+\vec{v}' = \vec{v} - 2\,(\vec{v} \cdot \hat{n})\,\hat{n}
+$$
+
+En NumPy :
+
+```python
+v = v - 2 * np.dot(v, n) * n
+```
+
+Les normales des quatre bandes sont :
+
+```
+        ↓ n̂ = (0, 1)   bord supérieur
+  ──────┬─────────────────┬──────
+→       │                 │      ←
+n̂=(1,0) │                 │ n̂=(-1,0)
+        │                 │
+  ──────┴─────────────────┴──────
+        ↑ n̂ = (0, -1)  bord inférieur
+```
+
+:::warning
+Rappel : dans Tkinter, $y$ augmente vers le bas. Le bord **supérieur** a donc
+$p_y = r$ et sa normale pointe vers les $y$ **croissants** : $\hat{n} = (0, 1)$.
+Le bord **inférieur** a $p_y = H - r$ et sa normale pointe vers les $y$
+**décroissants** : $\hat{n} = (0, -1)$.
+:::
+
+### Application bord par bord
+
+Dans une simulation discrète, la balle peut **dépasser** légèrement un bord en
+un seul pas de temps : son centre franchit la limite. Il faut donc, après avoir
+détecté le dépassement, **recaler** le centre exactement sur la limite avant
+d'appliquer la réflexion.
+
+Sans cette correction, deux problèmes surviennent :
+
+- **Visuellement**, la balle est rendue avec son centre hors de la surface — le
+  bord la traverse.
+- **Physiquement**, si le dépassement est grand, la balle peut rester plusieurs pas consécutifs dans la zone de
+  dépassement et subir des réflexions successives, produisant un comportement
+  erratique.
+
+| Condition | Bord touché | $\hat{n}$ | Correction de position |
+|---|---|---|---|
+| $p_x \leq r$ | gauche | $(1, 0)$ | $p_x \leftarrow r$ |
+| $p_x \geq L-r$ | droit | $(-1, 0)$ | $p_x \leftarrow L - r$ |
+| $p_y \leq r$ | supérieur | $(0, 1)$ | $p_y \leftarrow r$ |
+| $p_y \geq H-r$ | inférieur | $(0, -1)$ | $p_y \leftarrow H - r$ |
+
+
+À chaque pas de temps, vérifiez les quatre bords et appliquez la réflexion
+pour chacun qui est touché. Un coin peut être touché simultanément par deux
+bords : les deux réflexions doivent alors être appliquées.
+
+## Mise à jour du pré-calcul
+
+La structure de données de la trajectoire reste la même qu'à l'étape 1 : une
+séquence d'états, chacun contenant $\vec{p}$, $\vec{v}$ et le temps écoulé.
+La condition d'arrêt change simplement : au lieu de s'arrêter au premier
+contact avec un bord, la simulation continue jusqu'à ce que
+$\|\vec{v}\| \leq \epsilon$.
+
+## Interface graphique
+
+Ajoutez à l'interface existante :
+
+- Un champ pour entrer le **coefficient de friction** $\mu$.
+- Dessinez les **bandes** sur le canevas (un rectangle coloré en bordure de la
+  surface de jeu).
+- Mettez à jour le label **Position finale** pour qu'il saute à l'état où la
+  balle s'immobilise (plutôt qu'au contact avec le bord).

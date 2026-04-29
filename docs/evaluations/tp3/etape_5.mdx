@@ -1,0 +1,100 @@
+---
+sidebar_position: 6
+sidebar_label: Étape 5
+description: Étape 5 — Coefficient de restitution
+---
+
+# Étape 5 — Coefficient de restitution
+
+## Objectif
+
+Généraliser les rebonds en introduisant un **coefficient de restitution** $e$
+qui contrôle la perte d'énergie lors d'une collision. Jusqu'ici, toutes les
+collisions étaient parfaitement élastiques ($e = 1$). Cette étape permet de
+modéliser des rebonds plus réalistes où une partie de l'énergie est dissipée
+à l'impact.
+
+## Définition
+
+Le coefficient de restitution $e \in [0, 1]$ est le rapport entre la vitesse
+relative **après** et **avant** la collision, mesurée le long de la ligne de
+collision :
+
+$$
+e = \frac{|v'_{rel}|}{|v_{rel}|}
+$$
+
+- $e = 1$ : collision parfaitement élastique (aucune perte d'énergie) — comportement de l'étape 4.
+- $e = 0$ : collision parfaitement inélastique (les objets ne rebondissent plus).
+- $0 < e < 1$ : collision partiellement élastique (cas réaliste).
+
+## Rebond sur une bande avec restitution
+
+À l'étape 2, la réflexion sur une bande inversait complètement la composante
+normale de la vitesse :
+
+$$
+\vec{v}' = \vec{v} - 2\,(\vec{v} \cdot \hat{n})\,\hat{n}
+$$
+
+Avec un coefficient de restitution $e$, seule une fraction $e$ de la composante
+normale est restituée :
+
+$$
+\vec{v}' = \vec{v} - (1 + e)\,(\vec{v} \cdot \hat{n})\,\hat{n}
+$$
+
+On retrouve bien la formule de l'étape 2 pour $e = 1$.
+
+En NumPy :
+
+```python
+v = v - (1 + e) * np.dot(v, n) * n
+```
+
+## Collision entre deux balles avec restitution
+
+À l'étape 4, la mise à jour des vitesses était :
+
+$$
+\vec{v}_1' = \vec{v}_1 - v_{rel}\,\hat{n}
+\qquad
+\vec{v}_2' = \vec{v}_2 + v_{rel}\,\hat{n}
+$$
+
+Avec restitution, on pondère la correction par $\frac{1 + e}{2}$ :
+
+$$
+\vec{v}_1' = \vec{v}_1 - \frac{1 + e}{2}\,v_{rel}\,\hat{n}
+\qquad
+\vec{v}_2' = \vec{v}_2 + \frac{1 + e}{2}\,v_{rel}\,\hat{n}
+$$
+
+On retrouve les formules de l'étape 4 pour $e = 1$.
+
+En NumPy :
+
+```python
+n = (p2 - p1) / np.linalg.norm(p2 - p1)
+v_rel = np.dot(v1 - v2, n)
+
+if v_rel > 0:
+    v1 = v1 - (1 + e) / 2 * v_rel * n
+    v2 = v2 + (1 + e) / 2 * v_rel * n
+```
+
+:::tip
+Puisque $e = 1$ reproduit exactement le comportement de l'étape 4, vous pouvez
+remplacer les formules précédentes directement sans traiter les deux cas
+séparément. Vérifiez que votre simulation est identique à l'étape 4 lorsque
+vous réglez $e = 1$.
+:::
+
+## Fichier de configuration
+
+Ajoutez le coefficient de restitution au fichier de configuration. Vous pouvez
+choisir d'avoir un seul $e$ global ou deux valeurs distinctes — une pour les
+rebonds sur les bandes et une pour les collisions entre balles.
+
+Pensez à valider que $e \in [0, 1]$ lors de la lecture du fichier et à lever
+une exception appropriée si ce n'est pas le cas.
