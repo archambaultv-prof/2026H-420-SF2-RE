@@ -1,0 +1,173 @@
+---
+sidebar_position: 5
+sidebar_label: Étape 4
+description: Étape 4 — Collisions élastiques entre balles
+---
+
+# Étape 4
+
+## Objectif
+
+Ajouter plusieurs balles et implémenter les collisions élastiques entre elles.
+Introduire le concept de **tir** : le joueur lance la balle blanche, qui se
+déplace jusqu'à s'immobiliser, puis peut tirer à nouveau.
+
+## Ordre des opérations par pas de temps
+
+À chaque pas de temps, l'ordre recommandé est :
+
+1. **Friction** — atténuer $\vec{v}_i$ de chaque balle :
+   $\vec{v}_i \leftarrow \vec{v}_i \cdot (1 - \mu \cdot \Delta t)$
+
+2. **Collisions entre balles** — pour chaque paire $(i, j)$ en collision :
+   - Corriger les positions $\vec{p}_i$ et $\vec{p}_j$ pour éliminer le chevauchement.
+   - Mettre à jour $\vec{v}_i$ et $\vec{v}_j$ selon la collision élastique.
+
+3. **Rebonds sur les bandes** — pour chaque balle $i$ qui dépasse un bord :
+   - Corriger $\vec{p}_i$ pour recaler le centre sur la limite.
+   - Mettre à jour $\vec{v}_i$ par réflexion.
+
+4. **Mise à jour des positions** — déplacer toutes les balles :
+   $\vec{p}_i \leftarrow \vec{p}_i + \vec{v}_i \cdot \Delta t$
+
+Les sections suivantes détaillent les étapes 2 et 3.
+
+## Détection de collision entre deux balles
+
+Toutes les balles ont le même rayon $r$. Deux balles de positions $\vec{p}_1$
+et $\vec{p}_2$ sont en collision lorsque la distance entre leurs centres est
+inférieure ou égale à $2r$ :
+
+$$
+\|\vec{p}_2 - \vec{p}_1\| \leq 2r
+$$
+
+En NumPy :
+
+```python
+d = np.linalg.norm(p2 - p1)
+collision = d <= 2 * r
+```
+
+:::warning
+Si deux balles démarrent en se chevauchant (mauvaise configuration), la
+détection se déclenchera immédiatement. Pensez à valider les positions initiales
+lors de la lecture du fichier de configuration (étape 3).
+:::
+
+## Résolution d'une collision élastique
+
+Toutes les balles ont la même masse. Lors d'une collision élastique entre deux
+balles de masses égales, les vitesses sont
+échangées selon leur composante **le long de la ligne de collision**.
+
+Soit $\hat{n}$ le vecteur unitaire pointant du centre de la balle 1 vers le
+centre de la balle 2 :
+
+$$
+\hat{n} = \frac{\vec{p}_2 - \vec{p}_1}{\|\vec{p}_2 - \vec{p}_1\|}
+$$
+
+### Correction de position
+
+Comme pour les bandes, la simulation discrète peut faire se chevaucher deux
+balles. Il faut les séparer **avant** de modifier les vitesses : $\vec{p}_2$ est
+déplacé dans la direction de $\hat{n}$ et $\vec{p}_1$ dans la direction
+opposée, chacun de la moitié du chevauchement :
+
+```python
+chevauchement = 2 * r - np.linalg.norm(p2 - p1)
+p1 = p1 - (chevauchement / 2) * n
+p2 = p2 + (chevauchement / 2) * n
+```
+
+### Mise à jour des vitesses
+
+La composante de la vitesse relative le long de $\hat{n}$ est :
+
+$$
+v_{rel} = (\vec{v}_1 - \vec{v}_2) \cdot \hat{n}
+$$
+
+$v_{rel}$ mesure à quelle vitesse les deux balles **se rapprochent** le long de
+la ligne de collision. Un produit scalaire positif signifie que $\vec{v}_1 -
+\vec{v}_2$ pointe dans le même sens que $\hat{n}$, c'est-à-dire que la balle 1
+se déplace vers la balle 2 plus vite qu'elle ne s'en éloigne.
+
+Si $v_{rel} \leq 0$, les balles s'éloignent déjà l'une de l'autre et il ne
+faut **pas** appliquer la collision. Ce cas se produit par exemple après une
+correction de position : deux balles se chevauchent mais se déplacent déjà dans
+des directions opposées — elles se séparent naturellement au prochain pas.
+
+Sinon, on met à jour les vitesses :
+
+$$
+\vec{v}_1' = \vec{v}_1 - v_{rel}\,\hat{n}
+\qquad
+\vec{v}_2' = \vec{v}_2 + v_{rel}\,\hat{n}
+$$
+
+En NumPy :
+
+```python
+n = (p2 - p1) / np.linalg.norm(p2 - p1)
+v_rel = np.dot(v1 - v2, n)
+
+if v_rel > 0:
+    v1 = v1 - v_rel * n
+    v2 = v2 + v_rel * n
+```
+
+:::tip
+Remarquez la symétrie avec la réflexion sur les bandes : dans les deux cas, on
+projette une vitesse sur un vecteur normal et on corrige la composante normale.
+La même idée, deux contextes différents.
+:::
+
+## Collisions entre plusieurs balles
+
+Lorsqu'il y a $N$ balles, il faut vérifier toutes les paires à chaque pas de
+temps. Le nombre de paires croît en $O(N^2)$ :
+
+```
+pour chaque paire (i, j) avec i < j :
+    si collision(balle[i], balle[j]) :
+        résoudre_collision(balle[i], balle[j])
+```
+
+:::tip
+Traitez les paires dans un ordre cohérent et ne résolvez pas la même paire deux
+fois par pas de temps (d'où la condition `i < j`).
+:::
+
+## Concept de tir
+
+À cette étape, le joueur ne contrôle que la **balle blanche**. Les autres
+balles sont immobiles jusqu'à ce qu'elles soient frappées.
+
+Le déroulement d'un tir est le suivant :
+
+1. Le joueur entre un angle et une vitesse initiale, puis clique sur **Tirer**.
+2. Le programme pré-calcule la trajectoire complète — c'est-à-dire tous les
+   états de toutes les balles — jusqu'à ce que toutes les balles soient
+   immobiles ($\|\vec{v}_i\| \leq \epsilon$ pour toutes les balles $i$).
+3. L'utilisateur navigue dans les états avec les contrôles pas à pas.
+4. Une fois à l'état final, le joueur peut effectuer un nouveau tir.
+
+:::warning
+L'état de la simulation comprend maintenant la position et la vitesse de
+**toutes** les balles. Chaque état sauvegardé dans votre structure de données
+doit donc contenir l'information complète de toutes les balles.
+
+Réfléchissez à comment adapter votre structure de données existante pour
+stocker plusieurs balles par état.
+:::
+
+## Interface graphique
+
+Mettez à jour l'interface pour :
+
+- Afficher toutes les balles à leur position courante à chaque état.
+- Désactiver le bouton **Tirer** pendant la navigation (le tir suivant ne peut
+  se faire qu'une fois la trajectoire courante terminée).
+- Afficher la balle blanche dans une couleur distincte.

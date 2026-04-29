@@ -1,0 +1,181 @@
+---
+sidebar_position: 2
+sidebar_label: Étape 1
+description: Étape 1 — Interface de base et simulation pas à pas
+---
+
+# Étape 1
+
+## Objectif
+
+Mettre en place la fondation du simulateur : une surface de jeu rectangulaire
+vide (sans bandes), une seule balle et une boucle de simulation discrète qui
+pré-calcule la trajectoire complète de la balle jusqu'à ce qu'elle touche un
+bord.
+
+## Simulation numérique discrète
+
+Au lieu de calculer analytiquement la position de la balle à chaque instant,
+vous allez simuler son mouvement de façon **discrète** : le temps avance par
+petits incréments fixes appelés **pas de temps** $\Delta t$.
+
+L'état de la balle est décrit à tout moment par deux vecteurs :
+
+- $\vec{p} = (x,\, y)$ — sa **position**
+- $\vec{v} = (v_x,\, v_y)$ — sa **vitesse**
+
+À chaque pas de temps, la position est mise à jour selon :
+
+$$
+\vec{p}_{n+1} = \vec{p}_n + \vec{v}_n \cdot \Delta t
+$$
+
+La vitesse initiale est déterminée par l'angle $\theta$ et la norme $v_0$
+choisis par le joueur :
+
+$$
+\vec{v}_0 = v_0 \begin{pmatrix} \cos\theta \\ \sin\theta \end{pmatrix}
+$$
+
+Puisqu'il n'y a pas de friction à cette étape, $\vec{v}$ reste **constante**
+tout au long de la simulation : la balle se déplace en ligne droite.
+
+:::tip
+Représentez $\vec{p}$ et $\vec{v}$ comme des tableaux NumPy (`numpy.ndarray`)
+dès maintenant. Cela vous permettra d'écrire l'équation de mise à jour
+directement en Python :
+
+```python
+p = p + v * dt
+```
+
+Cette convention vous facilitera grandement la vie lors des étapes suivantes :
+les collisions élastiques reposent entièrement sur des opérations vectorielles
+(produit scalaire `numpy.dot`, norme `numpy.linalg.norm`) qui s'expriment
+naturellement avec NumPy.
+:::
+
+:::tip
+Choisissez une valeur de $\Delta t$ suffisamment petite pour que la simulation
+soit précise, mais pas trop petite pour éviter des calculs inutilement longs.
+:::
+
+:::warning
+Attention au système de coordonnées de Tkinter : l'axe $y$ est **inversé** par
+rapport au repère mathématique habituel (l'origine est en haut à gauche et $y$
+augmente vers le bas). Tenez-en compte lors du calcul de $\vec{v}_0$ et de la
+détection de collision avec les bords.
+:::
+
+
+## Détection de collision avec les bords
+
+La condition d'arrêt dépend du rayon $r$ de la balle et des dimensions de la
+surface. Le centre de la balle ne peut pas s'approcher à moins de $r$ pixels
+de chaque bord : il est contraint à se trouver dans la zone valide illustrée
+ci-dessous.
+
+```
+  (0,0)──────────────────────(L,0)
+    │   (r,r)          (L-r,r)│
+    │   ↓                 ↓   │
+    │   ┌─────────────────┐   │  ← marge de r pixels
+    │   │                 │   │     sur chaque bord
+    │   │   zone valide   │   │
+    │   │   pour le       │   │
+    │   │   centre        │   │
+    │   └─────────────────┘   │
+    │   ↑                 ↑   │
+    │ (r,H-r)       (L-r,H-r) │
+  (0,H)──────────────────────(L,H)
+```
+
+On définit donc deux vecteurs limites :
+
+$$
+\vec{p}_{\min} = \begin{pmatrix} r \\ r \end{pmatrix} \qquad \vec{p}_{\max} = \begin{pmatrix} L - r \\ H - r \end{pmatrix}
+$$
+
+La balle touche un bord dès que le centre sort de la zone valide, c'est-à-dire
+dès qu'**au moins une composante** de $\vec{p}$ franchit une limite :
+
+| Composante | Contact avec… |
+|---|---|
+| $p_x \leq r$ | bord gauche |
+| $p_x \geq L - r$ | bord droit |
+| $p_y \leq r$ | bord supérieur |
+| $p_y \geq H - r$ | bord inférieur |
+
+En NumPy, ces quatre vérifications se résument en une seule ligne :
+
+```python
+p_min = np.array([r, r])
+p_max = np.array([largeur - r, hauteur - r])
+
+# La balle touche un bord si :
+np.any(p <= p_min) or np.any(p >= p_max)
+```
+
+## Pré-calcul de la trajectoire complète
+
+Avant d'afficher quoi que ce soit, votre programme doit **calculer l'ensemble
+de la trajectoire** de la balle, depuis sa position initiale jusqu'au moment où
+elle touche un bord.
+
+Chaque état de la simulation (position, vitesse, temps écoulé) doit être
+conservé dans une structure de données. Le choix de cette structure est une
+partie importante de l'évaluation — réfléchissez à quelle structure permet de
+naviguer efficacement vers l'avant **et** vers l'arrière.
+
+:::warning
+Si la vitesse initiale est nulle, la balle ne se déplace pas. La trajectoire
+contient alors un seul état. Gérez ce cas particulier dans votre code.
+:::
+
+## Interface graphique
+
+L'interface doit comporter les éléments suivants.
+
+### Zone de saisie
+
+- Un champ pour entrer l'**angle** de lancement (en degrés).
+- Un champ pour entrer la **vitesse initiale**.
+- Un bouton **Lancer** qui déclenche le calcul de la trajectoire et affiche
+  la balle à sa position initiale.
+
+### Surface de jeu
+
+- Un canevas Tkinter (`Canvas`) représentant la surface de jeu rectangulaire.
+- La balle est dessinée à la position correspondant à l'état courant de la
+  simulation.
+
+### Contrôles de navigation
+
+Une fois la trajectoire calculée, les contrôles suivants permettent d'en
+parcourir les états :
+
+| Contrôle | Action |
+|---|---|
+| **Pas suivant** | Avance d'un état dans la trajectoire |
+| **Pas précédent** | Recule d'un état dans la trajectoire |
+| **Position finale** | Saute directement au dernier état (contact avec le bord) |
+| **Réinitialiser** | Retourne à l'état initial |
+
+:::tip
+Désactivez les boutons qui n'ont pas de sens dans le contexte courant : par
+exemple, **Pas précédent** quand on est au premier état, et **Pas suivant** ou
+**Position finale** quand on est déjà au dernier état.
+:::
+
+## Exemple de flux d'utilisation
+
+1. L'utilisateur entre un angle et une vitesse, puis clique sur **Lancer**.
+2. Le programme calcule tous les états de la trajectoire et affiche la balle à
+   sa position initiale.
+3. L'utilisateur clique sur **Pas suivant** pour avancer la balle d'un état à
+   la fois et observer son mouvement.
+4. L'utilisateur clique sur **Position finale** pour sauter directement là où
+   la balle touche le bord.
+5. L'utilisateur clique sur **Réinitialiser** pour revenir au début et
+   éventuellement entrer de nouveaux paramètres.
+

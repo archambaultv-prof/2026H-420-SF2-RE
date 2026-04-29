@@ -1,0 +1,53 @@
+---
+sidebar_position: 4
+sidebar_label: Étape 3
+description: Étape 3 — Lecture de la configuration depuis un fichier
+---
+
+# Étape 3
+
+## Objectif
+
+Remplacer les paramètres codés en dur par un fichier de configuration.
+Cette étape introduit la lecture de fichier, la validation des données et les
+exceptions personnalisées. Même si votre jeu ne gère encore qu'une seule balle
+pour l'instant, la structure du fichier et du code doit **anticiper** la
+présence de plusieurs balles à l'étape suivante.
+
+## Format et structure du fichier
+
+Vous êtes libres de choisir le format de votre fichier de configuration. Le
+contenu minimal à configurer est le suivant :
+- Les dimensions de la surface de jeu.
+- Le coefficient de friction $\mu$.
+- Rayon (le même pour toutes les balles).
+- Les paramètres de chaque balle (au minimum : position initiale).
+
+:::tip
+Même si votre simulation ne gère encore qu'une seule balle à cette étape,
+concevoir le fichier pour une **liste** de balles évitera de modifier son
+format à l'étape 4.
+:::
+
+:::warning
+Le choix du format et de la structure fait partie de l'évaluation. Soyez
+prêts à justifier votre décision lors de l'entretien d'équipe.
+:::
+
+## Validation et exceptions personnalisées
+
+Un fichier de configuration peut être invalide de plusieurs façons : fichier
+introuvable, fichier malformé, champs manquants, valeurs hors limites, etc. Il est
+de bonne pratique de détecter ces erreurs explicitement et de lever des
+**exceptions personnalisées** pour en informer l'utilisateur clairement.
+
+## Interface graphique
+
+Ajoutez à l'interface existante :
+
+- Un champ ou un bouton pour **choisir le fichier** de configuration
+  (vous pouvez utiliser `tkinter.filedialog.askopenfilename`).
+- Affichez un **message d'erreur** clair dans l'interface si le fichier est
+  invalide (utilisez vos exceptions personnalisées).
+- Les paramètres de la surface et la friction sont maintenant lus depuis le
+  fichier ; retirez les champs de saisie correspondants ou rendez-les optionnels.

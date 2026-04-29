@@ -1,0 +1,164 @@
+---
+sidebar_position: 1
+sidebar_label: Travail pratique 3
+description: Énoncé du travail pratique 3
+---
+
+# Travail pratique 3
+
+- **Pondération** : 15%
+- **Remise de l'énoncé** : 30 avril 2026
+- **1er entretien d'équipe** : 11 mai 2026
+- **Remise du code** : 18 mai 2026 à 23h59
+- **2e entretien d'équipe si nécessaire** : 20 mai 2026
+
+## Objectif
+
+Mettre en pratique les concepts suivant :
+- Programmation orientée objet (classe, héritage, polymorphisme)
+- Exceptions personnalisées
+- Git et github
+- Interface graphique avec Tkinter
+- Structure de données
+- Lecture de fichiers
+- Concevoir un programme pour résoudre un problème scientifique (collision entre balles)
+
+## Énoncé
+
+Vous allez concevoir un jeu de billard en deux dimensions en équipe de trois
+personnes. L'énoncé vous guidera dans la conception. Toutefois, l'énoncé est
+volontairement vague pour vous laisser une grande liberté de conception.
+L'évaluation ne portera pas tant sur le jeu lui-même que sur votre maîtrise des
+concepts mentionnés ci-dessus. Ainsi, vous êtes encouragés à faire preuve de
+créativité et d'originalité dans votre implémentation. Vous ne serez pas
+pénalisés s'il y a de petits bugs dans des fonctionnalités avancées.
+
+:::warning
+
+Puisque l'évaluation porte sur la maîtrise des concepts énoncés dans la section
+"Objectif", vous devez impérativement utiliser ces concepts dans votre implémentation.
+
+:::
+
+## Sommaire des étapes de développement
+
+Voici une liste d'étapes de développement suggérées pour vous aider à
+structurer votre travail. Vous n'êtes pas obligés de suivre ces étapes dans
+l'ordre, mais elles sont conçues pour vous guider dans la construction
+progressive de votre projet.
+
+Chaque étape est détaillée dans les pages subséquentes.
+
+1. **Étape 1** : Définir une interface graphique avec une surface de jeu sans
+   les bandes et avec une seule balle. Le joueur peut entrer un angle et une
+   vitesse initiale pour lancer la balle. La balle doit se déplacer en ligne
+   droite jusqu'à ce qu'elle atteigne les bords de la surface de jeu.
+
+   L'interface doit permettre de faire avancer la balle pas à pas pour observer
+   son mouvement ou de sauter directement à la position finale (contact avec les bords).
+   L'interface doit également permettre de revenir en arrière dans le temps.
+
+2. **Étape 2** : Ajouter des bandes de rebond autour de la surface de jeu. La
+   balle doit rebondir de manière réaliste en fonction de l'angle d'incidence.
+   Ajouter également un coefficient de frottement qui ralentit la balle au fil
+   du temps.
+
+3. **Étape 3** : Ajouter la possibilité de configurer la position de départ de
+   la balle. La configuration est lue à partir d'un fichier JSON. Prendre en 
+   compte que dans l'étapes suivantes, il y aura plusieurs balles à configurer.
+
+4. **Étape 4** : Ajouter plusieures balles et implémenter la détection de
+   collision entre les balles. Le joueur ne contrôle que la première balle (la
+    blanche au billard). Les balles doivent rebondir l'une contre l'autre selon
+   **une collision élastique**.
+
+   Ajouter le concept de tir. C'est à dire que le joueur tire la balle blanche
+   en entrant un angle et une vitesse initiale. Après le tir, la balle blanche
+   se déplace selon les règles de la physique (rebonds contre les bandes et les
+   autres balles) jusqu'à ce qu'elle s'immobilise. Ensuite, le joueur peut
+   tirer à nouveau la balle blanche pour continuer le jeu.
+
+5. **Étape 5** : Ajouter un coefficient de restitution pour les collisions
+   entre les balles et entre les balles et les bandes. Ce coefficient doit
+   être dans le fichier de configuration JSON.
+
+## Utilisation de Git et GitHub
+
+Vous devez créer un dépôt GitHub pour votre projet et y pousser régulièrement
+vos commits. Si le dépôt est privé, assurez-vous de m'ajouter en tant que
+collaborateur pour que je puisse accéder à votre code (archambaultv-prof).
+
+Chaque équipe doit m'envoyer un MIO avec le lien vers le dépôt GitHub et le nom
+des membres de l'équipe au plus tard le lundi 4 mai.
+
+## Utilisation de l'IA
+
+Vous pouvez utiliser l'IA dans ce travail. Toutefois, si vous n'êtes pas en
+mesure de bien expliquer une partie du code, vous obtiendrez une note de zéro
+pour le ou les concepts reliés à code.
+
+Par exemple, on pourrait vous demander ce qui changerai dans le code si on
+voulait ajouter une nouvelle fonctionnalité ou pourquoi vous avez choisi
+d'implémenter une classe de telle manière.
+
+:::warning
+
+Faites bien attention de ne pas générer tout le projet d'un seul coup avec
+l'IA. Vous risquez fort de ne pas pouvoir expliquer les choix de conception et
+d'implémentation faits par l'IA, ce qui pourrait entraîner une note de zéro
+pour les concepts concernés.
+
+:::
+
+## Évaluation
+
+Pour rappel, les concepts évalués sont les suivants :
+- Programmation orientée objet (classe, héritage, polymorphisme)
+- Exceptions personnalisées
+- Git et github
+- Interface graphique avec Tkinter
+- Structure de données
+- Lecture de fichiers
+- Concevoir un programme pour résoudre un problème scientifique (collision entre balles)
+
+Chaque concept a la même pondération dans la note finale et sera noté selon l'échelle suivante :
+- 0 : Non démontré
+- 25% : En apprentissage
+- 50% : Ça y est presque!
+- 75% : Acquis
+- 100% : Avancé
+
+Le niveau acquis correspond à une maîtrise du concept avec quelques erreurs
+mineures ou des possibilités d'amélioration. Aucune erreur de compréhension du
+concept ne doit être présente. Pour obtenir le niveau acquis, il faut pouvoir
+démontrer une bonne compréhension du code et des choix de conception liés au
+concept.
+
+Le niveau avancé correspond à une maîtrise sans erreur et à une capacité à
+expliquer les choix de conception et d'implémentation de manière claire et
+détaillée. Il faut également avoir fait les étapes 4 et 5 pour démontrer le
+niveau avancé ou d'autres fonctionnalités avancées de votre choix qui
+démontrent une maîtrise des concepts.
+
+:::warning
+
+Il est de votre responsabilité de vous assurer que chacun des concepts est bien
+démontré dans votre projet.
+
+Les étapes 1 à 3 devraient vous permettre de démontrer tous les concepts. Les
+étapes 4 et 5 sont des fonctionnalités avancées qui favorisent la démonstration
+du niveau avancé, mais ne sont pas nécessaires pour démontrer le niveau acquis.
+
+:::
+
+### Remise et entretien d'équipe
+
+Pour valider votre compréhension du projet et des concepts, un entretien
+d'équipe sera tenu avec chaque équipe le **lundi 11 mai**.
+
+Par la suite, vous aurez une semaine pour corriger les éventuels problèmes et
+améliorer votre projet avant la remise finale du code le **lundi 18 mai à
+23h59**.
+
+Si un deuxième entretien d'équipe est nécessaire pour valider les concepts, il
+aura lieu le **mercredi 20 mai**.
